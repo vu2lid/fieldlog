@@ -36,12 +36,12 @@ npm run format:check
 
 ## Architecture
 
-| Layer | Path | Responsibility |
-|-------|------|----------------|
-| Core | `src/core/` | ADIF parse/serialize, QSO model, band plan, dupes — pure, heavily unit-tested |
-| Storage | `src/storage/` | IndexedDB read/write; swappable persistence |
-| UI | `src/ui/` | React components, hooks, styles |
-| PWA | `vite.config.ts` | Service worker + manifest via `vite-plugin-pwa` |
+| Layer   | Path             | Responsibility                                                                |
+| ------- | ---------------- | ----------------------------------------------------------------------------- |
+| Core    | `src/core/`      | ADIF parse/serialize, QSO model, band plan, dupes — pure, heavily unit-tested |
+| Storage | `src/storage/`   | IndexedDB read/write; swappable persistence                                   |
+| UI      | `src/ui/`        | React components, hooks, styles                                               |
+| PWA     | `vite.config.ts` | Service worker + manifest via `vite-plugin-pwa`                               |
 
 The ADIF parser reads byte-accurate field lengths per the ADIF spec. Round-trip tests in `src/core/adif/parser.test.ts` are the correctness gate.
 
@@ -72,12 +72,12 @@ The ADIF parser reads byte-accurate field lengths per the ADIF spec. Round-trip 
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| react, react-dom | UI framework |
-| vite | Build tooling |
-| vite-plugin-pwa | Service worker + manifest |
-| vitest | Unit tests |
-| @playwright/test | E2E smoke tests |
+| Package          | Purpose                   |
+| ---------------- | ------------------------- |
+| react, react-dom | UI framework              |
+| vite             | Build tooling             |
+| vite-plugin-pwa  | Service worker + manifest |
+| vitest           | Unit tests                |
+| @playwright/test | E2E smoke tests           |
 
 No other runtime dependencies by design.

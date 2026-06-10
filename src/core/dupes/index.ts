@@ -34,7 +34,10 @@ export function qsoIdentityKey(qso: Qso): string {
   ].join('|');
 }
 
-export function mergeQsos(existing: Qso[], incoming: Qso[]): {
+export function mergeQsos(
+  existing: Qso[],
+  incoming: Qso[],
+): {
   added: Qso[];
   skipped: Qso[];
 } {

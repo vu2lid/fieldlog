@@ -74,9 +74,7 @@ export function serializeRecord(record: AdifRecord): string {
     }
   }
 
-  const remaining = [...record.fields.keys()]
-    .filter((k) => !emitted.has(k))
-    .sort();
+  const remaining = [...record.fields.keys()].filter((k) => !emitted.has(k)).sort();
   for (const name of remaining) {
     const value = record.fields.get(name);
     if (value !== undefined && value !== '') {

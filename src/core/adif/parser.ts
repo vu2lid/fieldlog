@@ -65,7 +65,9 @@ function parseField(
   }
   pos++;
 
-  const marker = new TextDecoder().decode(bytes.subarray(pos, Math.min(pos + 4, bytes.length))).toUpperCase();
+  const marker = new TextDecoder()
+    .decode(bytes.subarray(pos, Math.min(pos + 4, bytes.length)))
+    .toUpperCase();
   if (marker.startsWith('EOR>')) {
     return { field: null, end: pos + 4, terminal: 'eor' };
   }
@@ -141,8 +143,7 @@ function parseHeader(text: string): { header: AdifHeader; bodyStart: number } {
   }
 
   const firstTag = text.search(/</);
-  const preamble =
-    firstTag > 0 ? text.slice(0, firstTag).trim() || undefined : undefined;
+  const preamble = firstTag > 0 ? text.slice(0, firstTag).trim() || undefined : undefined;
   const headerText = text.slice(0, eohMatch.index + eohMatch[0].length);
   const headerBytes = toBytes(headerText);
   const errors: ParseError[] = [];

@@ -71,7 +71,11 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search by callsign"
         />
-        <select value={bandFilter} onChange={(e) => setBandFilter(e.target.value)} aria-label="Filter by band">
+        <select
+          value={bandFilter}
+          onChange={(e) => setBandFilter(e.target.value)}
+          aria-label="Filter by band"
+        >
           <option value="">All bands</option>
           {bands.map((b) => (
             <option key={b} value={b}>
@@ -79,7 +83,11 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
             </option>
           ))}
         </select>
-        <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)} aria-label="Filter by mode">
+        <select
+          value={modeFilter}
+          onChange={(e) => setModeFilter(e.target.value)}
+          aria-label="Filter by mode"
+        >
           <option value="">All modes</option>
           {modes.map((m) => (
             <option key={m} value={m}>
@@ -145,7 +153,11 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
                       {qso.rstSent}/{qso.rstRcvd}
                     </td>
                     <td className="actions">
-                      <button type="button" className="btn btn-secondary" onClick={() => onEdit(qso)}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => onEdit(qso)}
+                      >
                         Edit
                       </button>
                       {confirmDelete === qso.id ? (

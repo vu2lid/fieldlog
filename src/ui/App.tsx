@@ -48,17 +48,14 @@ export function App() {
     }
   }, []);
 
-  const handleLog = useCallback(
-    async (qso: Qso) => {
-      try {
-        await storage.putQso(qso);
-        setQsos((prev) => [qso, ...prev]);
-      } catch (e) {
-        setError(e instanceof StorageError ? e.message : 'Failed to save QSO');
-      }
-    },
-    [],
-  );
+  const handleLog = useCallback(async (qso: Qso) => {
+    try {
+      await storage.putQso(qso);
+      setQsos((prev) => [qso, ...prev]);
+    } catch (e) {
+      setError(e instanceof StorageError ? e.message : 'Failed to save QSO');
+    }
+  }, []);
 
   const handleImport = useCallback(async (added: Qso[]) => {
     try {
@@ -172,11 +169,7 @@ export function App() {
             onClick={() => setEditing(null)}
             aria-hidden="true"
           />
-          <EditQsoModal
-            qso={editing}
-            onSave={handleSaveEdit}
-            onClose={() => setEditing(null)}
-          />
+          <EditQsoModal qso={editing} onSave={handleSaveEdit} onClose={() => setEditing(null)} />
         </>
       )}
     </div>

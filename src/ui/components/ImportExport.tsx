@@ -22,8 +22,7 @@ export function ImportExport({ qsos, filteredQsos, onImport }: ImportExportProps
     if (added.length > 0) {
       await onImport(added);
     }
-    const errorNote =
-      result.errors.length > 0 ? `, ${result.errors.length} parse warning(s)` : '';
+    const errorNote = result.errors.length > 0 ? `, ${result.errors.length} parse warning(s)` : '';
     setSummary(
       `Import complete: ${added.length} added, ${skipped.length} skipped (duplicates)${errorNote}`,
     );
@@ -79,8 +78,8 @@ export function ImportExport({ qsos, filteredQsos, onImport }: ImportExportProps
         }}
       />
       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-        Imports merge into your log with duplicate detection. Malformed records are flagged but never
-        overwrite existing data.
+        Imports merge into your log with duplicate detection. Malformed records are flagged but
+        never overwrite existing data.
       </p>
       <div className="btn-row">
         <button
@@ -94,9 +93,7 @@ export function ImportExport({ qsos, filteredQsos, onImport }: ImportExportProps
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() =>
-              exportLog(filteredQsos, `fieldlog-filtered-${Date.now()}.adi`)
-            }
+            onClick={() => exportLog(filteredQsos, `fieldlog-filtered-${Date.now()}.adi`)}
           >
             Export filtered ({filteredQsos.length})
           </button>

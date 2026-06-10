@@ -28,12 +28,8 @@ export function HelpView() {
       <h3>ADIF fields used</h3>
       <p>Each QSO exports these ADIF 3.1.7 fields:</p>
       <ul>
-        <li>
-          Core: CALL, QSO_DATE, TIME_ON, BAND, FREQ, MODE, RST_SENT, RST_RCVD
-        </li>
-        <li>
-          Common: NAME, GRIDSQUARE, COMMENT, STATION_CALLSIGN, OPERATOR, MY_GRIDSQUARE
-        </li>
+        <li>Core: CALL, QSO_DATE, TIME_ON, BAND, FREQ, MODE, RST_SENT, RST_RCVD</li>
+        <li>Common: NAME, GRIDSQUARE, COMMENT, STATION_CALLSIGN, OPERATOR, MY_GRIDSQUARE</li>
         <li>
           POTA/SOTA: MY_SIG, MY_SIG_INFO, SIG, SIG_INFO, POTA_REF, MY_POTA_REF, SOTA_REF,
           MY_SOTA_REF

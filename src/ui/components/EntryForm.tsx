@@ -55,11 +55,7 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
   const callRef = useRef<HTMLInputElement>(null);
 
   const dupe = draft.call
-    ? isDupe(
-        qsos,
-        { call: draft.call, band: session.band, mode: session.mode },
-        session.dupeMode,
-      )
+    ? isDupe(qsos, { call: draft.call, band: session.band, mode: session.mode }, session.dupeMode)
     : { isDupe: false, matches: [] };
 
   const update = (patch: Partial<EntryDraft>) => setDraft((d) => ({ ...d, ...patch }));

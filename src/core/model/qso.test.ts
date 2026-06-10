@@ -18,7 +18,9 @@ describe('QSO model', () => {
   });
 
   it('round-trips QSO through ADIF', () => {
-    const qso = adifRecordToQso(parseAdi(readFileSync(join(fixturesDir, 'minimal.adi'), 'utf-8')).records[0]!);
+    const qso = adifRecordToQso(
+      parseAdi(readFileSync(join(fixturesDir, 'minimal.adi'), 'utf-8')).records[0]!,
+    );
     const adi = serializeAdi([qsoToAdifRecord(qso)]);
     const reparsed = adifRecordToQso(parseAdi(adi).records[0]!);
     expect(reparsed.call).toBe(qso.call);

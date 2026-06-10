@@ -47,7 +47,13 @@ describe('parseAdi', () => {
   });
 
   it('round-trips parse → serialize → parse', () => {
-    const fixtures = ['minimal.adi', 'pota-p2p.adi', 'mixed-case.adi', 'special-chars.adi', 'no-header.adi'];
+    const fixtures = [
+      'minimal.adi',
+      'pota-p2p.adi',
+      'mixed-case.adi',
+      'special-chars.adi',
+      'no-header.adi',
+    ];
     for (const fixture of fixtures) {
       const first = parseAdi(loadFixture(fixture));
       const serialized = serializeAdi(first.records);
