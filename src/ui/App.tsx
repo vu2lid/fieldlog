@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Qso, SessionContext } from '../core/model';
 import { StorageError } from '../storage';
 import * as storage from '../storage';
+import { EMPTY_LOG_FILTER, filterQsos } from './logFilter';
 import { EditQsoModal } from './components/EditQsoModal';
 import { EntryForm } from './components/EntryForm';
 import { HelpView } from './components/HelpView';
@@ -21,6 +22,9 @@ export function App() {
   const [error, setError] = useState('');
   const [persistWarning, setPersistWarning] = useState(false);
   const [editing, setEditing] = useState<Qso | null>(null);
+  const [logFilter, setLogFilter] = useState(EMPTY_LOG_FILTER);
+
+  const filteredQsos = useMemo(() => filterQsos(qsos, logFilter), [qsos, logFilter]);
 
   useEffect(() => {
     void (async () => {
@@ -163,7 +167,14 @@ export function App() {
             onLog={handleLog}
             onSessionChange={persistSession}
           />
-          <LogTable qsos={qsos} onEdit={setEditing} onDelete={(id) => void handleDelete(id)} />
+          <LogTable
+            qsos={qsos}
+            filteredQsos={filteredQsos}
+            filter={logFilter}
+            onFilterChange={setLogFilter}
+            onEdit={setEditing}
+            onDelete={(id) => void handleDelete(id)}
+          />
         </>
       )}
       {tab === 'session' && (
@@ -173,7 +184,9 @@ export function App() {
           onChange={(s) => void persistSession(s)}
         />
       )}
-      {tab === 'import' && <ImportExport qsos={qsos} onImport={handleImport} />}
+      {tab === 'import' && (
+        <ImportExport qsos={qsos} filteredQsos={filteredQsos} onImport={handleImport} />
+      )}
       {tab === 'help' && <HelpView />}
 
       {editing && (

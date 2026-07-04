@@ -1,11 +1,15 @@
 import { useMemo, useState } from 'react';
 import type { Qso } from '../../core/model';
+import type { LogFilter } from '../logFilter';
 
 type SortKey = keyof Qso | 'none';
 type SortDir = 'asc' | 'desc';
 
 interface LogTableProps {
   qsos: Qso[];
+  filteredQsos: Qso[];
+  filter: LogFilter;
+  onFilterChange: (filter: LogFilter) => void;
   onEdit: (qso: Qso) => void;
   onDelete: (id: string) => void;
 }
@@ -13,10 +17,14 @@ interface LogTableProps {
 const ROW_HEIGHT = 44;
 const VISIBLE_ROWS = 25;
 
-export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
-  const [search, setSearch] = useState('');
-  const [bandFilter, setBandFilter] = useState('');
-  const [modeFilter, setModeFilter] = useState('');
+export function LogTable({
+  qsos,
+  filteredQsos,
+  filter,
+  onFilterChange,
+  onEdit,
+  onDelete,
+}: LogTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('qsoDate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [scrollTop, setScrollTop] = useState(0);
@@ -26,24 +34,14 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
   const modes = useMemo(() => [...new Set(qsos.map((q) => q.mode))].sort(), [qsos]);
 
   const filtered = useMemo(() => {
-    const q = search.toUpperCase();
-    let list = qsos.filter((row) => {
-      if (q && !row.call.toUpperCase().includes(q)) return false;
-      if (bandFilter && row.band !== bandFilter) return false;
-      if (modeFilter && row.mode !== modeFilter) return false;
-      return true;
+    if (sortKey === 'none') return filteredQsos;
+    return [...filteredQsos].sort((a, b) => {
+      const av = a[sortKey as keyof Qso];
+      const bv = b[sortKey as keyof Qso];
+      const cmp = String(av ?? '').localeCompare(String(bv ?? ''), undefined, { numeric: true });
+      return sortDir === 'asc' ? cmp : -cmp;
     });
-
-    if (sortKey !== 'none') {
-      list = [...list].sort((a, b) => {
-        const av = a[sortKey as keyof Qso];
-        const bv = b[sortKey as keyof Qso];
-        const cmp = String(av ?? '').localeCompare(String(bv ?? ''), undefined, { numeric: true });
-        return sortDir === 'asc' ? cmp : -cmp;
-      });
-    }
-    return list;
-  }, [qsos, search, bandFilter, modeFilter, sortKey, sortDir]);
+  }, [filteredQsos, sortKey, sortDir]);
 
   const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT));
   const endIndex = Math.min(filtered.length, startIndex + VISIBLE_ROWS);
@@ -67,13 +65,13 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
         <input
           type="search"
           placeholder="Search callsign"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={filter.search}
+          onChange={(e) => onFilterChange({ ...filter, search: e.target.value })}
           aria-label="Search by callsign"
         />
         <select
-          value={bandFilter}
-          onChange={(e) => setBandFilter(e.target.value)}
+          value={filter.band}
+          onChange={(e) => onFilterChange({ ...filter, band: e.target.value })}
           aria-label="Filter by band"
         >
           <option value="">All bands</option>
@@ -84,8 +82,8 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
           ))}
         </select>
         <select
-          value={modeFilter}
-          onChange={(e) => setModeFilter(e.target.value)}
+          value={filter.mode}
+          onChange={(e) => onFilterChange({ ...filter, mode: e.target.value })}
           aria-label="Filter by mode"
         >
           <option value="">All modes</option>
@@ -95,6 +93,18 @@ export function LogTable({ qsos, onEdit, onDelete }: LogTableProps) {
             </option>
           ))}
         </select>
+        <input
+          type="date"
+          value={filter.dateFrom}
+          onChange={(e) => onFilterChange({ ...filter, dateFrom: e.target.value })}
+          aria-label="Filter from date"
+        />
+        <input
+          type="date"
+          value={filter.dateTo}
+          onChange={(e) => onFilterChange({ ...filter, dateTo: e.target.value })}
+          aria-label="Filter to date"
+        />
       </div>
       <div
         className="log-table-wrap"
