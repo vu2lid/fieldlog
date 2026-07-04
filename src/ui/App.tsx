@@ -19,6 +19,7 @@ export function App() {
   const [session, setSession] = useState<SessionContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [persistWarning, setPersistWarning] = useState(false);
   const [editing, setEditing] = useState<Qso | null>(null);
 
   useEffect(() => {
@@ -35,6 +36,9 @@ export function App() {
         setError(msg);
       } finally {
         setLoading(false);
+      }
+      if ((await storage.requestPersistence()) === 'denied') {
+        setPersistWarning(true);
       }
     })();
   }, []);
@@ -130,6 +134,21 @@ export function App() {
             className="btn btn-secondary"
             style={{ marginLeft: '1rem' }}
             onClick={() => setError('')}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {persistWarning && (
+        <div className="error-banner" role="status">
+          Persistent storage was not granted — the browser may evict log data under storage
+          pressure. Export your log regularly, or install the app to improve persistence.
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ marginLeft: '1rem' }}
+            onClick={() => setPersistWarning(false)}
           >
             Dismiss
           </button>

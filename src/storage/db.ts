@@ -7,11 +7,28 @@ const QSO_STORE = 'qsos';
 const META_STORE = 'meta';
 const SESSION_KEY = 'session';
 
+let dbPromise: Promise<IDBDatabase> | null = null;
+
 function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  dbPromise ??= new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onerror = () => reject(new StorageError('Failed to open database', request.error));
-    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => {
+      dbPromise = null;
+      reject(new StorageError('Failed to open database', request.error));
+    };
+    request.onblocked = () => {
+      dbPromise = null;
+      reject(new StorageError('Database open blocked by another tab', request.error));
+    };
+    request.onsuccess = () => {
+      const db = request.result;
+      // Another tab upgrading the schema needs us to release the connection.
+      db.onversionchange = () => {
+        db.close();
+        dbPromise = null;
+      };
+      resolve(db);
+    };
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(QSO_STORE)) {
@@ -25,12 +42,38 @@ function openDb(): Promise<IDBDatabase> {
       }
     };
   });
+  return dbPromise;
+}
+
+export async function closeDb(): Promise<void> {
+  if (!dbPromise) return;
+  const pending = dbPromise;
+  dbPromise = null;
+  try {
+    (await pending).close();
+  } catch {
+    // Connection never opened successfully; nothing to close.
+  }
+}
+
+function isQuotaError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'QuotaExceededError';
 }
 
 function txComplete(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(new StorageError('Transaction failed', tx.error));
+    tx.onerror = () => {
+      if (isQuotaError(tx.error)) {
+        reject(
+          new StorageError('Storage quota exceeded — export your log and free up space', tx.error, {
+            quotaExceeded: true,
+          }),
+        );
+      } else {
+        reject(new StorageError('Transaction failed', tx.error));
+      }
+    };
     tx.onabort = () => reject(new StorageError('Transaction aborted', tx.error));
   });
 }

@@ -8,10 +8,12 @@ export interface StorageState {
 
 export class StorageError extends Error {
   readonly cause?: unknown;
+  readonly quotaExceeded: boolean;
 
-  constructor(message: string, cause?: unknown) {
+  constructor(message: string, cause?: unknown, options?: { quotaExceeded?: boolean }) {
     super(message);
     this.name = 'StorageError';
     this.cause = cause;
+    this.quotaExceeded = options?.quotaExceeded ?? false;
   }
 }
