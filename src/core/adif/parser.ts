@@ -132,7 +132,10 @@ function parseField(
   return { field: { name: nameResult.name, value }, end: pos, terminal: null };
 }
 
-function parseHeader(text: string): { header: AdifHeader; bodyStart: number } {
+function parseHeader(
+  text: string,
+  errors: ParseError[],
+): { header: AdifHeader; bodyStart: number } {
   const eohMatch = /<EOH>/i.exec(text);
   if (!eohMatch || eohMatch.index === undefined) {
     const trimmed = text.trimStart();
@@ -146,7 +149,6 @@ function parseHeader(text: string): { header: AdifHeader; bodyStart: number } {
   const preamble = firstTag > 0 ? text.slice(0, firstTag).trim() || undefined : undefined;
   const headerText = text.slice(0, eohMatch.index + eohMatch[0].length);
   const headerBytes = toBytes(headerText);
-  const errors: ParseError[] = [];
   const fields = new Map<string, string>();
   let pos = firstTag > 0 ? charIndexToByteIndex(text, firstTag) : 0;
 
@@ -167,7 +169,7 @@ function parseHeader(text: string): { header: AdifHeader; bodyStart: number } {
 export function parseAdi(content: string): ParseResult {
   const errors: ParseError[] = [];
   const bytes = toBytes(content);
-  const { header, bodyStart } = parseHeader(content);
+  const { header, bodyStart } = parseHeader(content, errors);
 
   const records: AdifRecord[] = [];
   let pos = bodyStart;

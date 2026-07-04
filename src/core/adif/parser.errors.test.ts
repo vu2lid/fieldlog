@@ -14,6 +14,13 @@ describe('parseAdi error handling', () => {
     expect(result.records[0]?.fields.get('CALL')).toBe('W1AW');
   });
 
+  it('reports malformed header fields in the result errors', () => {
+    const adi = 'ADIF Export\n<PROGRAMID>NO_LENGTH\n<EOH>\n<CALL:4>W1AW\n<EOR>\n';
+    const result = parseAdi(adi);
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.records[0]?.fields.get('CALL')).toBe('W1AW');
+  });
+
   it('reports truncated field data', () => {
     const result = parseAdi('<CALL:20>SHORT<EOR>');
     expect(result.errors.some((e) => e.message.includes('truncated'))).toBe(true);
