@@ -52,6 +52,11 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
   const [draft, setDraft] = useState(() => initialDraft(session));
   const [flash, setFlash] = useState('');
   const [callWarning, setCallWarning] = useState<string | null>(null);
+  // Secondary fields start collapsed on phone-sized screens (narrow portrait
+  // or short landscape) so the Log button stays reachable without scrolling.
+  const [moreOpen, setMoreOpen] = useState(
+    () => !window.matchMedia('(max-width: 600px), (max-height: 500px)').matches,
+  );
   const callRef = useRef<HTMLInputElement>(null);
 
   // The band the QSO will actually be logged under: derived from the typed
@@ -230,43 +235,6 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
             placeholder="HHMMSS"
           />
         </div>
-        <div className="form-field">
-          <label htmlFor="name">Name</label>
-          <input id="name" value={draft.name} onChange={(e) => update({ name: e.target.value })} />
-        </div>
-        <div className="form-field">
-          <label htmlFor="grid">Grid</label>
-          <input
-            id="grid"
-            value={draft.gridSquare}
-            onChange={(e) => update({ gridSquare: e.target.value.toUpperCase() })}
-          />
-        </div>
-        <div className="form-field">
-          <label htmlFor="pota-ref">Their POTA ref</label>
-          <input
-            id="pota-ref"
-            value={draft.potaRef}
-            onChange={(e) => update({ potaRef: e.target.value.toUpperCase() })}
-          />
-        </div>
-        <div className="form-field">
-          <label htmlFor="sota-ref">Their SOTA ref</label>
-          <input
-            id="sota-ref"
-            value={draft.sotaRef}
-            onChange={(e) => update({ sotaRef: e.target.value.toUpperCase() })}
-          />
-        </div>
-        <div className="form-field form-field-wide">
-          <label htmlFor="comment">Comment</label>
-          <textarea
-            id="comment"
-            rows={2}
-            value={draft.comment}
-            onChange={(e) => update({ comment: e.target.value })}
-          />
-        </div>
       </div>
       <div className="btn-row">
         <button type="button" className="btn btn-primary" onClick={() => void handleLog()}>
@@ -296,6 +264,56 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
           Reset freq to band default
         </button>
       </div>
+      <details
+        className="more-fields"
+        open={moreOpen}
+        onToggle={(e) => setMoreOpen(e.currentTarget.open)}
+      >
+        <summary>More fields — name, grid, P2P refs, comment</summary>
+        <div className="form-grid">
+          <div className="form-field">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              value={draft.name}
+              onChange={(e) => update({ name: e.target.value })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="grid">Grid</label>
+            <input
+              id="grid"
+              value={draft.gridSquare}
+              onChange={(e) => update({ gridSquare: e.target.value.toUpperCase() })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="pota-ref">Their POTA ref</label>
+            <input
+              id="pota-ref"
+              value={draft.potaRef}
+              onChange={(e) => update({ potaRef: e.target.value.toUpperCase() })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="sota-ref">Their SOTA ref</label>
+            <input
+              id="sota-ref"
+              value={draft.sotaRef}
+              onChange={(e) => update({ sotaRef: e.target.value.toUpperCase() })}
+            />
+          </div>
+          <div className="form-field form-field-wide">
+            <label htmlFor="comment">Comment</label>
+            <textarea
+              id="comment"
+              rows={2}
+              value={draft.comment}
+              onChange={(e) => update({ comment: e.target.value })}
+            />
+          </div>
+        </div>
+      </details>
     </section>
   );
 }

@@ -13,6 +13,10 @@ test('core flow: log QSO, export, re-import round-trips faithfully', async ({ pa
 
   await page.getByRole('navigation').getByRole('button', { name: 'Log', exact: true }).click();
   await page.getByLabel('Callsign *').fill('W1AW');
+  // Secondary fields live in a disclosure that starts collapsed on phones
+  await page
+    .locator('details.more-fields')
+    .evaluate((d) => ((d as HTMLDetailsElement).open = true));
   await page.getByLabel('Their POTA ref').fill('US-CA-0123');
   await page.getByRole('button', { name: 'Log QSO' }).click();
   await expect(page.getByText('Logged W1AW')).toBeVisible();

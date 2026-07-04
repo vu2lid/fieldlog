@@ -157,6 +157,10 @@ body {
 .form-field input,
 .form-field select,
 .form-field textarea {
+  /* width/min-width let fields shrink inside 1fr grid tracks; without them
+     the inputs' intrinsic width forces the grid wider than small screens. */
+  width: 100%;
+  min-width: 0;
   min-height: var(--tap-min);
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border);
@@ -358,9 +362,65 @@ body {
   background: rgba(74, 222, 128, 0.05);
 }
 
+.more-fields summary {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  margin-top: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.more-fields[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+/* Phones: narrow portrait or short landscape */
+@media (max-width: 600px), (max-height: 500px) {
+  .app {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .app-header {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .panel {
+    padding: 0.75rem;
+  }
+
+  .panel h2 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-grid {
+    gap: 0.5rem;
+  }
+
+  .btn-row {
+    margin-top: 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .error-banner {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .nav-tab {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Narrow portrait only: two-column entry grid */
 @media (max-width: 600px) {
   .form-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .form-field-wide {
