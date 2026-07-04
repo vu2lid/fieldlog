@@ -59,6 +59,12 @@ export function HelpView() {
         When entering a callsign, FieldLog shows a DUPE badge if that station was worked before.
         Configure whether dupes match same band+mode or any band in Session settings.
       </p>
+
+      <h3>Night operation</h3>
+      <p>
+        The Red night mode button in the header switches to a low-intensity red-on-black theme
+        that preserves night vision. Your choice is remembered on this device.
+      </p>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import { HelpView } from './components/HelpView';
 import { ImportExport } from './components/ImportExport';
 import { LogTable } from './components/LogTable';
 import { SessionPanel } from './components/SessionPanel';
+import { ThemeToggle } from './components/ThemeToggle';
 import { UtcClock } from './components/UtcClock';
 import './styles/app.css';
 
@@ -108,6 +109,7 @@ export function App() {
           <span>Field</span>Log
         </h1>
         <UtcClock />
+        <ThemeToggle />
         <nav className="nav-tabs" aria-label="Main navigation">
           {(
             [

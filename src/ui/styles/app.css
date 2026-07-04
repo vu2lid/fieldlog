@@ -22,6 +22,22 @@
   line-height: 1.5;
 }
 
+/* Red night mode: low-intensity red-on-black to preserve night vision
+   during field operation. Keeps semantic colors distinguishable. */
+:root[data-theme='red'] {
+  --bg: #0c0404;
+  --surface: #180808;
+  --surface-2: #240e0e;
+  --text: #f87171;
+  --text-muted: #a34747;
+  --accent: #ff6b6b;
+  --accent-dim: #d94f4f;
+  --warning: #ff9f45;
+  --danger: #ff3333;
+  --border: #421515;
+  --focus: #ff8f8f;
+}
+
 *,
 *::before,
 *::after {
