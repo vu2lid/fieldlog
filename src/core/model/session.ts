@@ -8,6 +8,8 @@ export interface SessionContext {
   mode: string;
   freq: number;
   dupeMode: 'band-mode' | 'any';
+  /** QSOs logged at or after this timestamp count toward the session. 0 = all. */
+  sessionStartedAt: number;
 }
 
 export const DEFAULT_SESSION: SessionContext = {
@@ -20,4 +22,5 @@ export const DEFAULT_SESSION: SessionContext = {
   mode: 'SSB',
   freq: 14.2,
   dupeMode: 'band-mode',
+  sessionStartedAt: 0,
 };

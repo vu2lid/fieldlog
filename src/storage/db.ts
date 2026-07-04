@@ -118,7 +118,9 @@ export async function getSession(): Promise<SessionContext> {
     const tx = db.transaction(META_STORE, 'readonly');
     const request = tx.objectStore(META_STORE).get(SESSION_KEY);
     request.onsuccess = () => {
-      resolve((request.result as SessionContext | undefined) ?? { ...DEFAULT_SESSION });
+      // Merge over defaults so sessions saved by older versions gain new fields.
+      const stored = request.result as Partial<SessionContext> | undefined;
+      resolve({ ...DEFAULT_SESSION, ...stored });
     };
     request.onerror = () => reject(new StorageError('Failed to read session', request.error));
   });

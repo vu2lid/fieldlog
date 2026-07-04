@@ -180,7 +180,8 @@ export function App() {
       {tab === 'session' && (
         <SessionPanel
           session={session}
-          qsoCount={qsos.length}
+          sessionQsoCount={qsos.filter((q) => q.createdAt >= session.sessionStartedAt).length}
+          totalQsoCount={qsos.length}
           onChange={(s) => void persistSession(s)}
         />
       )}

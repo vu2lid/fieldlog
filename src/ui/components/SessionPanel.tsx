@@ -3,11 +3,17 @@ import type { SessionContext } from '../../core/model';
 
 interface SessionPanelProps {
   session: SessionContext;
-  qsoCount: number;
+  sessionQsoCount: number;
+  totalQsoCount: number;
   onChange: (session: SessionContext) => void;
 }
 
-export function SessionPanel({ session, qsoCount, onChange }: SessionPanelProps) {
+export function SessionPanel({
+  session,
+  sessionQsoCount,
+  totalQsoCount,
+  onChange,
+}: SessionPanelProps) {
   const update = (patch: Partial<SessionContext>) => onChange({ ...session, ...patch });
 
   return (
@@ -72,7 +78,18 @@ export function SessionPanel({ session, qsoCount, onChange }: SessionPanelProps)
         </div>
       </div>
       <p style={{ marginTop: '1rem' }}>
-        Session QSOs: <span className="qso-counter">{qsoCount}</span>
+        Session QSOs: <span className="qso-counter">{sessionQsoCount}</span>
+        <span style={{ color: 'var(--text-muted)', marginLeft: '0.75rem' }}>
+          Log total: {totalQsoCount}
+        </span>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          style={{ marginLeft: '0.75rem' }}
+          onClick={() => update({ sessionStartedAt: Date.now() })}
+        >
+          New session
+        </button>
       </p>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>
         Band ({session.band}) and mode ({session.mode}) persist between QSOs on the Log tab.
