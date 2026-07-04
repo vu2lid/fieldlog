@@ -1,10 +1,40 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const CSP =
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+
+// Dev only: @vitejs/plugin-react injects an inline react-refresh preamble,
+// which a strict script-src 'self' would block (blank page). Production
+// keeps the strict policy — built HTML contains no inline scripts.
+const DEV_CSP = CSP.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'");
+
+// Inject the strict CSP meta tag into the built index.html so the policy
+// holds when dist/ is served from any static host without header support.
+function cspMeta(): Plugin {
+  return {
+    name: 'fieldlog:csp-meta',
+    apply: 'build',
+    transformIndexHtml(html) {
+      return {
+        html,
+        tags: [
+          {
+            tag: 'meta',
+            attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP },
+            injectTo: 'head-prepend',
+          },
+        ],
+      };
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
     react(),
+    cspMeta(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
@@ -37,14 +67,12 @@ export default defineConfig({
   ],
   server: {
     headers: {
-      'Content-Security-Policy':
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
+      'Content-Security-Policy': DEV_CSP,
     },
   },
   preview: {
     headers: {
-      'Content-Security-Policy':
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
+      'Content-Security-Policy': CSP,
     },
   },
 });

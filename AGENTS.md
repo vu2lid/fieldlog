@@ -72,7 +72,7 @@ per-theme values in components.
 ## Critical invariants — do not violate
 
 1. **No runtime network requests** — no CDNs, analytics, external fonts, callsign APIs, or telemetry.
-2. **Strict CSP** — `default-src 'self'; connect-src 'self'` in `index.html` meta tag and Vite server/preview headers.
+2. **Strict CSP** — `default-src 'self'; connect-src 'self'` injected as a meta tag into the production build and set on preview headers (see `vite.config.ts`). The dev server relaxes only `script-src` with `'unsafe-inline'` for the react-refresh preamble; never weaken the build/preview policy.
 3. **Local-only persistence** — IndexedDB; no cloud sync, no accounts.
 4. **No `eval`**, no inline event handlers that weaken CSP.
 5. **Import safety** — malformed ADIF must never corrupt the existing log.

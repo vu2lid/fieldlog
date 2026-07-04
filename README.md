@@ -71,11 +71,15 @@ best-effort storage that the browser could evict under pressure, so export regul
 
 - All log data stays in your browser (IndexedDB).
 - The running app makes **no external network requests** — no CDNs, fonts, analytics, or callsign lookups.
-- A strict Content-Security-Policy is enforced via HTML meta tag and dev/preview server headers:
+- A strict Content-Security-Policy is enforced via an HTML meta tag injected into the
+  production build (so it holds on any static host) and via preview server headers:
 
   ```text
   default-src 'self'; connect-src 'self'; ...
   ```
+
+  The dev server alone allows inline scripts (`script-src 'unsafe-inline'`) because Vite's
+  React fast-refresh requires an inline preamble; production stays strict.
 
 ### Verify no external requests
 
