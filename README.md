@@ -11,6 +11,11 @@ Offline, browser-based amateur radio field logger for POTA, SOTA, contests, and 
 - **Duplicate detection** (same band+mode or any band)
 - **Filterable log** — search by callsign, filter by band, mode, and date range; export the
   full log or the filtered subset
+- **Highlights view** — the log table defaults to the key columns (Call, Time, Band, Mode)
+  so it fits phone screens without sideways scrolling; one checkbox restores all 8 columns
+- **Phone-first entry form** — primary fields and the Log button fit on screen without
+  scrolling; secondary fields (name, grid, P2P refs, comment) sit in a collapsible
+  "More fields" section
 - **Red night mode** — low-intensity red-on-black theme for night operation
 - **IndexedDB** persistence across reloads, with persistent-storage request and quota warnings
 - **PWA** — installable, works offline via service worker
@@ -57,8 +62,12 @@ npm run format        # Prettier
 
 1. **Session** — set station callsign, operator, grid, POTA/SOTA refs. The session QSO
    counter tracks the current activation; press **New session** to reset it (the log is kept).
-2. **Log** — enter callsign, RST, optional name/grid/comment; band & mode persist. The
-   log table filters by callsign, band, mode, and date range.
+2. **Log** — enter callsign, RST, optional name/grid/comment; band & mode persist. On
+   phones the optional fields start collapsed under **More fields** so the Log button
+   stays reachable without scrolling. The log table filters by callsign, band, mode, and
+   date range; the **Highlights** checkbox (on by default, remembered per device) limits
+   columns to Call/Time/Band/Mode so the table fits phone screens — uncheck it for the
+   full 8-column view.
 3. **Import/Export** — merge `.adi` files with deduplication; export the full log or the
    currently filtered subset as ADIF for LoTW/Club Log/POTA upload later.
 4. **Help** — in-app documentation and keyboard shortcuts.

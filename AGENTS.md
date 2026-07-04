@@ -69,6 +69,33 @@ Themes are CSS custom-property swaps on `:root[data-theme='…']` in `src/ui/sty
 before first paint in `src/main.tsx`. Add new colors as custom properties, never hardcoded
 per-theme values in components.
 
+### Mobile layout invariants
+
+- **No horizontal overflow at phone widths.** Inputs inside grid tracks need
+  `width: 100%; min-width: 0` (see `.form-field` rules) — `1fr` tracks cannot shrink below
+  an input's intrinsic width without them. Verify at 412×915 and 915×412 (Pixel 7) when
+  touching entry-form or table layout.
+- **Tap targets stay ≥ 44px** (`--tap-min`), including in the compact
+  `@media (max-width: 600px), (max-height: 500px)` rules.
+- The entry form keeps primary fields + the Log button above the fold on phones; secondary
+  fields live in the `.more-fields` disclosure (collapsed by default on small screens via
+  `matchMedia` in `EntryForm.tsx`).
+- Log-table columns are driven by the single `COLUMNS` definition in
+  `src/ui/components/LogTable.tsx` (header, cells, and `colSpan` derive from it). The
+  Highlights checkbox filters to `essential: true` columns; keep the essential set narrow
+  enough to fit a 412px viewport with no sideways scroll.
+- The row virtualization assumes `ROW_HEIGHT` (44px) rows — avoid styles that let normal
+  rows grow taller (the delete-confirm wrap is the accepted exception).
+
+### Device-local UI preferences (localStorage keys)
+
+| Key                    | Values                | Purpose                       |
+| ---------------------- | --------------------- | ----------------------------- |
+| `fieldlog-theme`       | `dark` \| `red`       | Theme toggle                  |
+| `fieldlog-log-columns` | `highlights` \| `all` | Log table Highlights checkbox |
+
+UI preferences go in `localStorage`; QSO/session data stays in IndexedDB.
+
 ## Critical invariants — do not violate
 
 1. **No runtime network requests** — no CDNs, analytics, external fonts, callsign APIs, or telemetry.

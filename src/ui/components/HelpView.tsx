@@ -12,8 +12,20 @@ export function HelpView() {
         <li>Set your station callsign, operator, and grid on the Session tab.</li>
         <li>Choose band and mode — they persist between QSOs.</li>
         <li>On the Log tab, enter a callsign and press Enter or click Log QSO.</li>
+        <li>
+          Name, grid, P2P refs, and comment are under <strong>More fields</strong> — collapsed
+          on phones so the Log button stays on screen.
+        </li>
         <li>Export your log as ADIF when done; upload to LoTW, Club Log, or POTA later.</li>
       </ol>
+
+      <h3>Log table columns</h3>
+      <p>
+        The <strong>Highlights</strong> checkbox above the log table (on by default) shows only
+        the key columns — Call, Time, Band, Mode — so the table fits phone screens without
+        sideways scrolling. Uncheck it to see all columns (date, frequency, RST). Your choice is
+        remembered on this device; every field is always visible when editing a QSO.
+      </p>
 
       <h3>Keyboard shortcuts</h3>
       <ul>
