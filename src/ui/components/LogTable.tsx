@@ -5,6 +5,27 @@ import type { LogFilter } from '../logFilter';
 type SortKey = keyof Qso | 'none';
 type SortDir = 'asc' | 'desc';
 
+interface Column {
+  key: string;
+  label: string;
+  sortKey?: keyof Qso;
+  /** Shown when the Highlights checkbox limits the table to key columns. */
+  essential: boolean;
+  render: (qso: Qso) => string | number;
+}
+
+const COLUMNS: Column[] = [
+  { key: 'call', label: 'Call', sortKey: 'call', essential: true, render: (q) => q.call },
+  { key: 'date', label: 'Date', sortKey: 'qsoDate', essential: false, render: (q) => q.qsoDate },
+  { key: 'time', label: 'Time', sortKey: 'timeOn', essential: true, render: (q) => q.timeOn },
+  { key: 'band', label: 'Band', sortKey: 'band', essential: true, render: (q) => q.band },
+  { key: 'freq', label: 'Freq', sortKey: 'freq', essential: false, render: (q) => q.freq },
+  { key: 'mode', label: 'Mode', sortKey: 'mode', essential: true, render: (q) => q.mode },
+  { key: 'rst', label: 'RST', essential: false, render: (q) => `${q.rstSent}/${q.rstRcvd}` },
+];
+
+const HIGHLIGHTS_KEY = 'fieldlog-log-columns';
+
 interface LogTableProps {
   qsos: Qso[];
   filteredQsos: Qso[];
@@ -29,6 +50,26 @@ export function LogTable({
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [scrollTop, setScrollTop] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [highlights, setHighlights] = useState(() => {
+    try {
+      return localStorage.getItem(HIGHLIGHTS_KEY) !== 'all';
+    } catch {
+      return true;
+    }
+  });
+
+  const columns = highlights ? COLUMNS.filter((c) => c.essential) : COLUMNS;
+  // +1 for the always-visible Actions column
+  const colSpan = columns.length + 1;
+
+  const toggleHighlights = (checked: boolean) => {
+    setHighlights(checked);
+    try {
+      localStorage.setItem(HIGHLIGHTS_KEY, checked ? 'highlights' : 'all');
+    } catch {
+      // Storage unavailable; the choice still applies for this visit.
+    }
+  };
 
   const bands = useMemo(() => [...new Set(qsos.map((q) => q.band))].sort(), [qsos]);
   const modes = useMemo(() => [...new Set(qsos.map((q) => q.mode))].sort(), [qsos]);
@@ -105,6 +146,14 @@ export function LogTable({
           onChange={(e) => onFilterChange({ ...filter, dateTo: e.target.value })}
           aria-label="Filter to date"
         />
+        <label className="highlights-toggle">
+          <input
+            type="checkbox"
+            checked={highlights}
+            onChange={(e) => toggleHighlights(e.target.checked)}
+          />
+          Highlights
+        </label>
       </div>
       <div
         className="log-table-wrap"
@@ -115,39 +164,43 @@ export function LogTable({
         <table className="log-table">
           <thead>
             <tr>
-              {(
-                [
-                  ['call', 'Call'],
-                  ['qsoDate', 'Date'],
-                  ['timeOn', 'Time'],
-                  ['band', 'Band'],
-                  ['freq', 'Freq'],
-                  ['mode', 'Mode'],
-                ] as const
-              ).map(([key, label]) => (
-                <th
-                  key={key}
-                  scope="col"
-                  aria-sort={
-                    sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined
-                  }
-                >
-                  <button type="button" className="th-sort" onClick={() => toggleSort(key)}>
-                    {label}
-                    {sortKey === key && (
-                      <span aria-hidden="true"> {sortDir === 'asc' ? '▲' : '▼'}</span>
-                    )}
-                  </button>
-                </th>
-              ))}
-              <th scope="col">RST</th>
+              {columns.map((col) =>
+                col.sortKey ? (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    aria-sort={
+                      sortKey === col.sortKey
+                        ? sortDir === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : undefined
+                    }
+                  >
+                    <button
+                      type="button"
+                      className="th-sort"
+                      onClick={() => toggleSort(col.sortKey!)}
+                    >
+                      {col.label}
+                      {sortKey === col.sortKey && (
+                        <span aria-hidden="true"> {sortDir === 'asc' ? '▲' : '▼'}</span>
+                      )}
+                    </button>
+                  </th>
+                ) : (
+                  <th key={col.key} scope="col">
+                    {col.label}
+                  </th>
+                ),
+              )}
               <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan={colSpan} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
                   No QSOs yet. Log your first contact on the Log tab.
                 </td>
               </tr>
@@ -155,20 +208,14 @@ export function LogTable({
               <>
                 {topPad > 0 && (
                   <tr aria-hidden="true">
-                    <td colSpan={8} style={{ height: topPad, padding: 0, border: 'none' }} />
+                    <td colSpan={colSpan} style={{ height: topPad, padding: 0, border: 'none' }} />
                   </tr>
                 )}
                 {visible.map((qso) => (
                   <tr key={qso.id}>
-                    <td>{qso.call}</td>
-                    <td>{qso.qsoDate}</td>
-                    <td>{qso.timeOn}</td>
-                    <td>{qso.band}</td>
-                    <td>{qso.freq}</td>
-                    <td>{qso.mode}</td>
-                    <td>
-                      {qso.rstSent}/{qso.rstRcvd}
-                    </td>
+                    {columns.map((col) => (
+                      <td key={col.key}>{col.render(qso)}</td>
+                    ))}
                     <td className="actions">
                       <button
                         type="button"
@@ -211,7 +258,7 @@ export function LogTable({
                 ))}
                 {bottomPad > 0 && (
                   <tr aria-hidden="true">
-                    <td colSpan={8} style={{ height: bottomPad, padding: 0, border: 'none' }} />
+                    <td colSpan={colSpan} style={{ height: bottomPad, padding: 0, border: 'none' }} />
                   </tr>
                 )}
               </>
