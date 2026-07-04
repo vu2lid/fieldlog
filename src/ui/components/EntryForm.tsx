@@ -54,8 +54,13 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
   const [callWarning, setCallWarning] = useState<string | null>(null);
   const callRef = useRef<HTMLInputElement>(null);
 
+  // The band the QSO will actually be logged under: derived from the typed
+  // frequency when it maps to a band, otherwise the session band.
+  const effectiveFreq = parseFloat(draft.freq) || session.freq;
+  const effectiveBand = frequencyToBand(effectiveFreq) ?? session.band;
+
   const dupe = draft.call
-    ? isDupe(qsos, { call: draft.call, band: session.band, mode: session.mode }, session.dupeMode)
+    ? isDupe(qsos, { call: draft.call, band: effectiveBand, mode: session.mode }, session.dupeMode)
     : { isDupe: false, matches: [] };
 
   const update = (patch: Partial<EntryDraft>) => setDraft((d) => ({ ...d, ...patch }));
@@ -67,11 +72,10 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
       return;
     }
 
-    const freq = parseFloat(draft.freq) || session.freq;
-    const bandFromFreq = frequencyToBand(freq);
-    const band = bandFromFreq ?? session.band;
+    const freq = effectiveFreq;
+    const band = effectiveBand;
 
-    if (bandFromFreq && bandFromFreq !== session.band) {
+    if (band !== session.band) {
       onSessionChange({ ...session, band, freq });
     }
 
@@ -184,7 +188,7 @@ export function EntryForm({ session, qsos, onLog, onSessionChange }: EntryFormPr
         </div>
         <div className="form-field">
           <label htmlFor="band-display">Band</label>
-          <input id="band-display" value={session.band} readOnly aria-readonly="true" />
+          <input id="band-display" value={effectiveBand} readOnly aria-readonly="true" />
         </div>
         <div className="form-field">
           <label htmlFor="mode-display">Mode</label>
