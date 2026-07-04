@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseAdi, serializeAdi } from '../adif';
-import { adifRecordToQso, qsoToAdifRecord } from './qso';
+import { adifRecordToQso, createQsoId, qsoToAdifRecord } from './qso';
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), '../../../fixtures');
 
@@ -26,5 +26,28 @@ describe('QSO model', () => {
     expect(reparsed.call).toBe(qso.call);
     expect(reparsed.band).toBe(qso.band);
     expect(reparsed.freq).toBe(qso.freq);
+  });
+});
+
+describe('createQsoId', () => {
+  const V4_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+  it('generates a v4 UUID', () => {
+    expect(createQsoId()).toMatch(V4_SHAPE);
+  });
+
+  it('falls back to getRandomValues when randomUUID is unavailable (insecure context)', () => {
+    const original = crypto.randomUUID;
+    // Simulate insecure context where crypto.randomUUID does not exist
+    Object.defineProperty(crypto, 'randomUUID', { value: undefined, configurable: true });
+    try {
+      const ids = new Set([createQsoId(), createQsoId(), createQsoId()]);
+      expect(ids.size).toBe(3);
+      for (const id of ids) {
+        expect(id).toMatch(V4_SHAPE);
+      }
+    } finally {
+      Object.defineProperty(crypto, 'randomUUID', { value: original, configurable: true });
+    }
   });
 });
