@@ -1,5 +1,10 @@
 import type { AdifRecord } from '../adif';
-import { bandToDefaultFrequency, frequencyToBand, normalizeBandName } from '../bands';
+import {
+  bandToDefaultFrequency,
+  defaultRstForMode,
+  frequencyToBand,
+  normalizeBandName,
+} from '../bands';
 
 export interface Qso {
   id: string;
@@ -173,6 +178,9 @@ export function adifRecordToQso(record: AdifRecord, id = createQsoId()): Qso {
     if (!known.has(key) && value) extraFields[key] = value;
   }
 
+  const mode = (getField(record, 'MODE') ?? 'SSB').toUpperCase();
+  const rstDefaults = defaultRstForMode(mode);
+
   return {
     id,
     call: call.toUpperCase(),
@@ -181,10 +189,10 @@ export function adifRecordToQso(record: AdifRecord, id = createQsoId()): Qso {
     timeOff: getField(record, 'TIME_OFF'),
     band,
     freq,
-    mode: (getField(record, 'MODE') ?? 'SSB').toUpperCase(),
+    mode,
     submode: getField(record, 'SUBMODE'),
-    rstSent: getField(record, 'RST_SENT') ?? '59',
-    rstRcvd: getField(record, 'RST_RCVD') ?? '59',
+    rstSent: getField(record, 'RST_SENT') ?? rstDefaults.sent,
+    rstRcvd: getField(record, 'RST_RCVD') ?? rstDefaults.rcvd,
     name: getField(record, 'NAME'),
     qth: getField(record, 'QTH'),
     gridSquare: getField(record, 'GRIDSQUARE'),
