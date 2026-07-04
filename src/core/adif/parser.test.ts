@@ -46,6 +46,34 @@ describe('parseAdi', () => {
     expect(result.records[0]!.fields.get('CALL')).toBe('G3XYZ');
   });
 
+  it('does not mistake a literal <EOH> inside data for a header terminator', () => {
+    const adi = '<CALL:5>G3XYZ<COMMENT:5><EOH>\n<EOR>\n<CALL:4>W1AW\n<EOR>\n';
+    const result = parseAdi(adi);
+    expect(result.errors).toHaveLength(0);
+    expect(result.header.fields.size).toBe(0);
+    expect(result.records).toHaveLength(2);
+    expect(result.records[0]!.fields.get('COMMENT')).toBe('<EOH>');
+    expect(result.records[1]!.fields.get('CALL')).toBe('W1AW');
+  });
+
+  it('parses multi-byte UTF-8 data using byte lengths', () => {
+    const result = parseAdi(loadFixture('utf8.adi'));
+    expect(result.errors).toHaveLength(0);
+    const fields = result.records[0]!.fields;
+    expect(fields.get('CALL')).toBe('DL1ÄÖÜ');
+    expect(fields.get('NAME')).toBe('José');
+    expect(fields.get('QTH')).toBe('München');
+    expect(fields.get('COMMENT')).toBe('Grüße aus Köln — 73 🎙️');
+  });
+
+  it('tolerates the optional :TYPE indicator in field specifiers', () => {
+    const adi = '<CALL:4:S>W1AW\n<QSO_DATE:8:D>20240101\n<EOR>\n';
+    const result = parseAdi(adi);
+    expect(result.errors).toHaveLength(0);
+    expect(result.records[0]!.fields.get('CALL')).toBe('W1AW');
+    expect(result.records[0]!.fields.get('QSO_DATE')).toBe('20240101');
+  });
+
   it('round-trips parse → serialize → parse', () => {
     const fixtures = [
       'minimal.adi',
@@ -53,6 +81,7 @@ describe('parseAdi', () => {
       'mixed-case.adi',
       'special-chars.adi',
       'no-header.adi',
+      'utf8.adi',
     ];
     for (const fixture of fixtures) {
       const first = parseAdi(loadFixture(fixture));

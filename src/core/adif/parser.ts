@@ -1,10 +1,4 @@
-import {
-  byteIndexToCharIndex,
-  charIndexToByteIndex,
-  lineAtOffset,
-  sliceByBytes,
-  toBytes,
-} from './bytes';
+import { byteIndexToCharIndex, lineAtOffset, sliceByBytes, toBytes } from './bytes';
 import type { AdifField, AdifHeader, AdifRecord, ParseError, ParseResult } from './types';
 
 const WHITESPACE = new Set([0x20, 0x09, 0x0a, 0x0d]);
@@ -33,7 +27,12 @@ function readDigits(bytes: Uint8Array, start: number): { value: number; end: num
 function readFieldName(bytes: Uint8Array, start: number): { name: string; end: number } | null {
   let pos = start;
   const nameStart = pos;
+  // A field name ends at ':'; it can never contain '<', '>', or whitespace,
+  // so hitting any of those means the specifier is malformed.
   while (pos < bytes.length && bytes[pos] !== 0x3a) {
+    if (bytes[pos] === 0x3c || bytes[pos] === 0x3e || WHITESPACE.has(bytes[pos]!)) {
+      return null;
+    }
     pos++;
   }
   if (pos === nameStart || bytes[pos] !== 0x3a) {
@@ -132,54 +131,49 @@ function parseField(
   return { field: { name: nameResult.name, value }, end: pos, terminal: null };
 }
 
-function parseHeader(
-  text: string,
-  errors: ParseError[],
-): { header: AdifHeader; bodyStart: number } {
-  const eohMatch = /<EOH>/i.exec(text);
-  if (!eohMatch || eohMatch.index === undefined) {
-    const trimmed = text.trimStart();
-    if (!trimmed.startsWith('<')) {
-      return { header: { fields: new Map(), preamble: text.trim() }, bodyStart: 0 };
-    }
-    return { header: { fields: new Map() }, bodyStart: 0 };
-  }
-
-  const firstTag = text.search(/</);
-  const preamble = firstTag > 0 ? text.slice(0, firstTag).trim() || undefined : undefined;
-  const headerText = text.slice(0, eohMatch.index + eohMatch[0].length);
-  const headerBytes = toBytes(headerText);
-  const fields = new Map<string, string>();
-  let pos = firstTag > 0 ? charIndexToByteIndex(text, firstTag) : 0;
-
-  while (pos < headerBytes.length) {
-    const result = parseField(headerText, headerBytes, pos, errors);
-    pos = result.end;
-    if (result.terminal === 'eoh') break;
-    if (result.field) {
-      fields.set(result.field.name, result.field.value);
-    }
-    if (!result.field && !result.terminal && pos >= headerBytes.length) break;
-  }
-
-  const bodyStart = charIndexToByteIndex(text, eohMatch.index + eohMatch[0].length);
-  return { header: { fields, preamble }, bodyStart };
-}
-
 export function parseAdi(content: string): ParseResult {
   const errors: ParseError[] = [];
   const bytes = toBytes(content);
-  const { header, bodyStart } = parseHeader(content, errors);
 
+  // Free text before the first '<' is the header preamble. Everything is
+  // parsed in a single byte-aware pass: fields seen before the first <EOH>
+  // terminal belong to the header, but a first terminal of <EOR> means the
+  // file has no header. Because field data is consumed by byte length, a
+  // literal '<EOH>' or '<EOR>' inside data is never mistaken for a terminal.
+  let firstTag = skipWhitespaceBytes(bytes, 0);
+  while (firstTag < bytes.length && bytes[firstTag] !== 0x3c) {
+    firstTag++;
+  }
+  const preamble = sliceByBytes(content, 0, firstTag).trim() || undefined;
+
+  const header: AdifHeader = preamble ? { fields: new Map(), preamble } : { fields: new Map() };
   const records: AdifRecord[] = [];
-  let pos = bodyStart;
   let currentFields = new Map<string, string>();
+  let inHeader = true;
+  let pos = firstTag;
 
   while (pos < bytes.length) {
     const result = parseField(content, bytes, pos, errors);
     pos = result.end;
 
+    if (result.terminal === 'eoh') {
+      if (inHeader) {
+        header.fields = currentFields;
+        currentFields = new Map();
+        inHeader = false;
+      } else {
+        const charOffset = byteIndexToCharIndex(content, pos);
+        errors.push({
+          message: 'Unexpected <EOH> after header',
+          offset: charOffset,
+          line: lineAtOffset(content, charOffset),
+        });
+      }
+      continue;
+    }
+
     if (result.terminal === 'eor') {
+      inHeader = false;
       if (currentFields.size > 0) {
         records.push({ fields: new Map(currentFields) });
       }
