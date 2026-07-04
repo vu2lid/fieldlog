@@ -115,24 +115,31 @@ export function LogTable({
         <table className="log-table">
           <thead>
             <tr>
-              <th scope="col" onClick={() => toggleSort('call')}>
-                Call
-              </th>
-              <th scope="col" onClick={() => toggleSort('qsoDate')}>
-                Date
-              </th>
-              <th scope="col" onClick={() => toggleSort('timeOn')}>
-                Time
-              </th>
-              <th scope="col" onClick={() => toggleSort('band')}>
-                Band
-              </th>
-              <th scope="col" onClick={() => toggleSort('freq')}>
-                Freq
-              </th>
-              <th scope="col" onClick={() => toggleSort('mode')}>
-                Mode
-              </th>
+              {(
+                [
+                  ['call', 'Call'],
+                  ['qsoDate', 'Date'],
+                  ['timeOn', 'Time'],
+                  ['band', 'Band'],
+                  ['freq', 'Freq'],
+                  ['mode', 'Mode'],
+                ] as const
+              ).map(([key, label]) => (
+                <th
+                  key={key}
+                  scope="col"
+                  aria-sort={
+                    sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined
+                  }
+                >
+                  <button type="button" className="th-sort" onClick={() => toggleSort(key)}>
+                    {label}
+                    {sortKey === key && (
+                      <span aria-hidden="true"> {sortDir === 'asc' ? '▲' : '▼'}</span>
+                    )}
+                  </button>
+                </th>
+              ))}
               <th scope="col">RST</th>
               <th scope="col">Actions</th>
             </tr>

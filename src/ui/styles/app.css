@@ -268,8 +268,29 @@ body {
   position: sticky;
   top: 0;
   z-index: 1;
-  cursor: pointer;
   user-select: none;
+}
+
+.log-table th:has(.th-sort) {
+  padding: 0;
+}
+
+.th-sort {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.th-sort:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
 }
 
 .log-table tr:hover td {
