@@ -7,11 +7,15 @@ Offline, browser-based amateur radio field logger for POTA, SOTA, contests, and 
 - **Fully offline** after first load — no server, no accounts, no cloud sync
 - **ADIF 3.1.7 export** with import support back to ADIF 1.x
 - **Keyboard-friendly** QSO entry (Enter to log, tab order optimized)
-- **POTA/SOTA** session context and park-to-park fields
+- **POTA/SOTA** session context, park-to-park fields, and a per-session QSO counter
 - **Duplicate detection** (same band+mode or any band)
-- **IndexedDB** persistence across reloads
+- **Filterable log** — search by callsign, filter by band, mode, and date range; export the
+  full log or the filtered subset
+- **Red night mode** — low-intensity red-on-black theme for night operation
+- **IndexedDB** persistence across reloads, with persistent-storage request and quota warnings
 - **PWA** — installable, works offline via service worker
 - **Strict CSP** — no external network requests at runtime
+- Works over plain HTTP on a LAN (e.g. serving `dist/` from a laptop to a phone in the field)
 
 ## Quick start
 
@@ -20,7 +24,9 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173
+Open <http://localhost:5173>
+
+Requires Node 22 (see `.nvmrc`).
 
 ## Build & serve offline
 
@@ -30,6 +36,12 @@ npm run preview
 ```
 
 Serve the `dist/` folder from any static host. After one online load, the service worker caches the full app shell.
+
+For field use you can serve `dist/` over plain HTTP on a LAN (e.g. from a laptop to a
+phone). QSO ID generation falls back to a `crypto.getRandomValues`-based UUID when
+`crypto.randomUUID` is unavailable outside secure contexts, so logging works there too.
+Note that service-worker installation (offline caching) still requires HTTPS or
+localhost — on plain HTTP the app works while the page is open but is not installable.
 
 ## Test & lint
 
@@ -43,10 +55,17 @@ npm run format        # Prettier
 
 ## Usage
 
-1. **Session** — set station callsign, operator, grid, POTA/SOTA refs.
-2. **Log** — enter callsign, RST, optional name/grid/comment; band & mode persist.
-3. **Import/Export** — merge `.adi` files with deduplication; export ADIF for LoTW/Club Log/POTA upload later.
+1. **Session** — set station callsign, operator, grid, POTA/SOTA refs. The session QSO
+   counter tracks the current activation; press **New session** to reset it (the log is kept).
+2. **Log** — enter callsign, RST, optional name/grid/comment; band & mode persist. The
+   log table filters by callsign, band, mode, and date range.
+3. **Import/Export** — merge `.adi` files with deduplication; export the full log or the
+   currently filtered subset as ADIF for LoTW/Club Log/POTA upload later.
 4. **Help** — in-app documentation and keyboard shortcuts.
+5. **Red night mode** — toggle in the header; preserves night vision during after-dark operation.
+
+If the browser denies persistent storage, FieldLog shows a warning — your log then lives in
+best-effort storage that the browser could evict under pressure, so export regularly.
 
 ## Privacy & offline guarantees
 
@@ -54,7 +73,7 @@ npm run format        # Prettier
 - The running app makes **no external network requests** — no CDNs, fonts, analytics, or callsign lookups.
 - A strict Content-Security-Policy is enforced via HTML meta tag and dev/preview server headers:
 
-  ```
+  ```text
   default-src 'self'; connect-src 'self'; ...
   ```
 
@@ -67,7 +86,7 @@ npm run format        # Prettier
 
 ## Project structure
 
-```
+```text
 src/
   core/       # Pure domain logic (ADIF, model, bands, dupes) — no DOM
   storage/    # IndexedDB layer

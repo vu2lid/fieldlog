@@ -41,7 +41,14 @@ export function HelpView() {
       <p>
         Import accepts ADIF 1.x through 3.1.x .adi files. Export always writes ADIF 3.1.7 with a
         standard header. Duplicate QSOs (same call, date, time, band, mode, freq) are skipped on
-        merge.
+        merge. When the log table has an active filter (callsign, band, mode, or date range), the
+        Import/Export tab offers exporting just that filtered subset.
+      </p>
+
+      <h3>Session counter</h3>
+      <p>
+        The Session tab shows QSOs logged in the current session — press New session at the start
+        of an activation to reset the counter without touching the log.
       </p>
 
       <h3>Offline &amp; privacy</h3>

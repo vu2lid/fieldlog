@@ -8,6 +8,8 @@ FieldLog is an offline-first amateur radio logging PWA. It runs entirely in the 
 
 ## Setup commands
 
+Requires **Node 22** (see `.nvmrc`; `nvm use` picks it up). Older Node versions fail.
+
 ```bash
 npm install
 npm run dev        # development server at http://localhost:5173
@@ -43,7 +45,29 @@ npm run format:check
 | UI      | `src/ui/`        | React components, hooks, styles                                               |
 | PWA     | `vite.config.ts` | Service worker + manifest via `vite-plugin-pwa`                               |
 
-The ADIF parser reads byte-accurate field lengths per the ADIF spec. Round-trip tests in `src/core/adif/parser.test.ts` are the correctness gate.
+The ADIF parser reads byte-accurate field lengths per the ADIF spec in a single pass —
+header/record boundaries come from `<EOH>`/`<EOR>` terminals seen outside field data, never
+from regex scans over the raw text. Round-trip tests in `src/core/adif/parser.test.ts` are
+the correctness gate.
+
+### Storage-layer invariants
+
+- `src/storage/db.ts` holds **one cached IndexedDB connection** (module-level promise). Do
+  not reintroduce per-operation `indexedDB.open` calls; handle `onblocked` and
+  `versionchange` when touching the open logic.
+- Quota failures must surface as `StorageError` with `quotaExceeded: true` so the UI can
+  show an actionable message.
+- `getSession` merges stored sessions over `DEFAULT_SESSION` — add new `SessionContext`
+  fields with sensible defaults there and they migrate automatically.
+- `createQsoId` must keep working in insecure contexts (plain-HTTP LAN serving):
+  `crypto.randomUUID` is not available there, hence the `getRandomValues` fallback.
+
+### Theming
+
+Themes are CSS custom-property swaps on `:root[data-theme='…']` in `src/ui/styles/app.css`
+(`red` = night mode). The choice persists in `localStorage` (`fieldlog-theme`), applied
+before first paint in `src/main.tsx`. Add new colors as custom properties, never hardcoded
+per-theme values in components.
 
 ## Critical invariants — do not violate
 
