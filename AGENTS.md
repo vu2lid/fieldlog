@@ -136,6 +136,13 @@ internal timestamps. Full-log exports update the snapshot; filtered exports neve
 5. Log a QSO, view log, export ADIF — all must work.
 6. Network tab during normal use shows no external origins.
 
+## GitHub Pages deployment
+
+`.github/workflows/deploy-pages.yml` verifies and deploys `main`. It sets `BASE_PATH` to
+`/${{ github.event.repository.name }}/`; Vite, the PWA manifest, service-worker scope, and
+Playwright all consume that value. Local builds default to `/`. Keep the workflow generic:
+do not hardcode an account or repository name, and do not commit `dist/`.
+
 ## Commit / PR conventions
 
 - Incremental commits with clear messages.

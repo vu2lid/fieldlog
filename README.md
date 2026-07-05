@@ -54,6 +54,20 @@ phone). QSO ID generation falls back to a `crypto.getRandomValues`-based UUID wh
 Note that service-worker installation (offline caching) still requires HTTPS or
 localhost — on plain HTTP the app works while the page is open but is not installable.
 
+## GitHub Pages deployment
+
+The Pages workflow verifies and deploys every push to `main`. In the repository settings,
+select **Settings → Pages → Source → GitHub Actions**. The workflow derives `BASE_PATH`
+from the repository name, so forks and renamed repositories deploy under their own
+`/<repository>/` path without source changes. The generated `dist/` directory is uploaded
+as a Pages artifact and is never committed.
+
+Local development and normal production builds use `/`. To test a project-site path locally:
+
+```bash
+BASE_PATH=/fieldlog/ npm run test:e2e
+```
+
 ## Test & lint
 
 ```bash

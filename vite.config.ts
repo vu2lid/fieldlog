@@ -7,6 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
   version: string;
 };
+const basePath = process.env.BASE_PATH ?? '/';
+
+if (!basePath.startsWith('/') || !basePath.endsWith('/')) {
+  throw new Error('BASE_PATH must start and end with "/"');
+}
 
 const CSP =
   "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
@@ -38,6 +43,7 @@ function cspMeta(): Plugin {
 }
 
 export default defineConfig({
+  base: basePath,
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
@@ -54,7 +60,8 @@ export default defineConfig({
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',
         display: 'standalone',
-        start_url: '/',
+        start_url: basePath,
+        scope: basePath,
         icons: [
           {
             src: 'pwa-192.png',

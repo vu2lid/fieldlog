@@ -4,14 +4,14 @@ import { expect, test } from '@playwright/test';
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
 
 test('Help identifies the running application version', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
 
   await page.getByRole('navigation').getByRole('button', { name: 'Help' }).click();
   await expect(page.getByText(`FieldLog v${packageJson.version}`)).toBeVisible();
 });
 
 test('core flow: log QSO, export, re-import round-trips faithfully', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
 
   await expect(page.getByRole('heading', { name: /FieldLog/i })).toBeVisible();
 
@@ -74,7 +74,7 @@ test('core flow: log QSO, export, re-import round-trips faithfully', async ({ pa
 
 test('Highlights table fits Pixel 7 portrait and landscape without Actions', async ({ page }) => {
   await page.setViewportSize({ width: 412, height: 915 });
-  await page.goto('/');
+  await page.goto('./');
 
   await page.getByLabel('Callsign *').fill('W1AW');
   await page.getByRole('button', { name: 'Log QSO' }).click();
@@ -102,7 +102,7 @@ test('Highlights table fits Pixel 7 portrait and landscape without Actions', asy
 
 test('Light theme applies, persists, and fits a phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 412, height: 915 });
-  await page.goto('/');
+  await page.goto('./');
 
   const selector = page.getByRole('combobox', { name: 'Theme' });
   await expect(selector).toHaveValue('dark');
@@ -120,7 +120,7 @@ test('Light theme applies, persists, and fits a phone viewport', async ({ page }
 });
 
 test('manual entry blocks invalid values and succeeds after correction', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
 
   await page.getByLabel('Callsign *').fill('W1AW');
   await page.getByLabel('QSO date (UTC)').fill('20230229');
@@ -139,7 +139,7 @@ test('manual entry blocks invalid values and succeeds after correction', async (
 });
 
 test('import preview excludes invalid records before confirmed persistence', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await page.getByRole('navigation').getByRole('button', { name: 'Import/Export' }).click();
 
   const valid =
@@ -164,7 +164,7 @@ test('import preview excludes invalid records before confirmed persistence', asy
 });
 
 test('grouped QSO editor persists contact and program fields', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await page.getByLabel('Callsign *').fill('W1AW');
   await page.getByRole('button', { name: 'Log QSO' }).click();
 
@@ -199,7 +199,7 @@ test('backup reminder clears after full export and returns after a log change', 
       JSON.stringify({ qsoCountThreshold: 1, ageMinutesThreshold: 240 }),
     );
   });
-  await page.goto('/');
+  await page.goto('./');
 
   await page.getByLabel('Callsign *').fill('W1AW');
   await page.getByRole('button', { name: 'Log QSO' }).click();
