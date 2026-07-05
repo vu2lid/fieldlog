@@ -1,3 +1,5 @@
+import { APP_VERSION } from '../version';
+
 export interface AdifField {
   name: string;
   value: string;
@@ -26,4 +28,4 @@ export interface ParseResult {
 
 export const ADIF_VERSION = '3.1.7';
 export const PROGRAM_ID = 'FieldLog';
-export const PROGRAM_VERSION = '1.0.0';
+export const PROGRAM_VERSION = APP_VERSION;

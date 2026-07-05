@@ -143,6 +143,13 @@ internal timestamps. Full-log exports update the snapshot; filtered exports neve
 - ADIF changes require round-trip test updates.
 - New UI features should remain keyboard-accessible with ARIA labels.
 
+## Release version
+
+`package.json` is the single source of the FieldLog version. Vite injects it at build time;
+the Help view displays it and ADIF exports use it for `PROGRAMVERSION`. Update the version
+with `npm version <version> --no-git-tag-version` so `package.json` and `package-lock.json`
+stay synchronized. Git release tags use the same version prefixed with `v`.
+
 ## Dependencies
 
 | Package          | Purpose                   |

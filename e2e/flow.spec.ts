@@ -1,6 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
+const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
+
+test('Help identifies the running application version', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('navigation').getByRole('button', { name: 'Help' }).click();
+  await expect(page.getByText(`FieldLog v${packageJson.version}`)).toBeVisible();
+});
+
 test('core flow: log QSO, export, re-import round-trips faithfully', async ({ page }) => {
   await page.goto('/');
 
@@ -34,6 +43,7 @@ test('core flow: log QSO, export, re-import round-trips faithfully', async ({ pa
   // Field-level fidelity of the exported ADIF
   const adi = readFileSync(path!, 'utf-8');
   expect(adi).toContain('<ADIF_VER:5>3.1.7');
+  expect(adi).toContain(`<PROGRAMVERSION:${packageJson.version.length}>${packageJson.version}`);
   expect(adi).toContain('<EOH>');
   expect(adi).toContain('<CALL:4>W1AW');
   expect(adi).toContain('<BAND:3>20m');

@@ -1,7 +1,10 @@
+import { APP_VERSION } from '../../core/version';
+
 export function HelpView() {
   return (
     <section className="panel help-content" aria-labelledby="help-heading">
       <h2 id="help-heading">Help</h2>
+      <p className="app-version">FieldLog v{APP_VERSION}</p>
       <p>
         FieldLog is an offline amateur radio logging app for field operations (POTA, SOTA, contests,
         portable). All data stays on your device.

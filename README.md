@@ -2,6 +2,9 @@
 
 Offline, browser-based amateur radio field logger for POTA, SOTA, contests, and portable operation. Log QSOs fast, import/export ADIF, and keep all data on your device.
 
+FieldLog is currently beta software. Export regular ADIF backups and include the version shown in
+Help when reporting a problem.
+
 ## Features
 
 - **Fully offline** after first load — no server, no accounts, no cloud sync
