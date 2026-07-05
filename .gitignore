@@ -4,7 +4,30 @@ dist-ssr
 coverage
 *.local
 .DS_Store
+Thumbs.db
 playwright-report
 test-results
 .vite
 *.tsbuildinfo
+
+# Local environment and package-manager credentials
+.env
+.env.*
+!.env.example
+.npmrc
+
+# Private keys and signing material
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Editor and local development-agent state
+.idea/
+.vscode/
+.claude/
+.codex/
+.aider*
+*.swp

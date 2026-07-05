@@ -114,6 +114,14 @@ src/
 fixtures/     # Sample .adi files for tests
 ```
 
+The ADIF fixtures and files under `samples/` contain illustrative test data only. They are not
+exports of a contributor's station log.
+
+## Security
+
+Please report suspected vulnerabilities according to [SECURITY.md](SECURITY.md). Do not attach
+private station logs or exported ADIF files to public issues.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
