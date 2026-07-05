@@ -1,10 +1,12 @@
-export type Theme = 'dark' | 'red';
+export type Theme = 'light' | 'dark' | 'red';
 
 const STORAGE_KEY = 'fieldlog-theme';
+const THEMES: ReadonlySet<string> = new Set<Theme>(['light', 'dark', 'red']);
 
 export function loadTheme(): Theme {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'red' ? 'red' : 'dark';
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored && THEMES.has(stored) ? (stored as Theme) : 'dark';
   } catch {
     return 'dark';
   }

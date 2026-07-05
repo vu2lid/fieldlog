@@ -1,7 +1,15 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Qso } from '../core/model';
-import { clearAllData, closeDb, deleteQso, getAllQsos, getSession, putQso, saveSession } from './db';
+import {
+  clearAllData,
+  closeDb,
+  deleteQso,
+  getAllQsos,
+  getSession,
+  putQso,
+  saveSession,
+} from './db';
 import { StorageError } from './types';
 
 function makeQso(id: string): Qso {

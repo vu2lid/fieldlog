@@ -29,15 +29,11 @@ describe('QSO model', () => {
   });
 
   it('defaults missing RST by mode on import', () => {
-    const cw = adifRecordToQso(
-      parseAdi('<CALL:4>W1AW<BAND:3>40m<MODE:2>CW<EOR>').records[0]!,
-    );
+    const cw = adifRecordToQso(parseAdi('<CALL:4>W1AW<BAND:3>40m<MODE:2>CW<EOR>').records[0]!);
     expect(cw.rstSent).toBe('599');
     expect(cw.rstRcvd).toBe('599');
 
-    const ssb = adifRecordToQso(
-      parseAdi('<CALL:4>W1AW<BAND:3>20m<MODE:3>SSB<EOR>').records[0]!,
-    );
+    const ssb = adifRecordToQso(parseAdi('<CALL:4>W1AW<BAND:3>20m<MODE:3>SSB<EOR>').records[0]!);
     expect(ssb.rstSent).toBe('59');
     expect(ssb.rstRcvd).toBe('59');
   });

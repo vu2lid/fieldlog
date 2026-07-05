@@ -50,6 +50,21 @@ header/record boundaries come from `<EOH>`/`<EOR>` terminals seen outside field 
 from regex scans over the raw text. Round-trip tests in `src/core/adif/parser.test.ts` are
 the correctness gate.
 
+### QSO validation contract
+
+- `validateQso` in `src/core/model/validation.ts` is the single domain validator for manual
+  entry, editing, and ADIF import.
+- Validation errors identify records that cannot safely enter the canonical log. Warnings
+  identify unusual but potentially valid amateur-radio or imported ADIF values.
+- Keep callsign, unknown band/mode, grid, and band/frequency checks permissive warnings.
+  Portable, special-event, and legacy ADIF values must remain reviewable rather than rejected.
+- UI and import layers may present validation differently but must not duplicate domain rules.
+- ADIF file selection is analyze-only. `ImportExport` must preview parser diagnostics,
+  validation warnings, invalid exclusions, and duplicates before confirmation. Only valid,
+  non-duplicate records may reach the existing atomic `putQsos` transaction.
+- `EditQsoModal` exposes all known ADIF-backed `Qso` fields, applies the shared validator,
+  and preserves `extraFields` unchanged. Save failures must retain the edit draft for retry.
+
 ### Storage-layer invariants
 
 - `src/storage/db.ts` holds **one cached IndexedDB connection** (module-level promise). Do
@@ -65,7 +80,8 @@ the correctness gate.
 ### Theming
 
 Themes are CSS custom-property swaps on `:root[data-theme='…']` in `src/ui/styles/app.css`
-(`red` = night mode). The choice persists in `localStorage` (`fieldlog-theme`), applied
+(`light` = daylight, `dark` = default, `red` = night mode). The choice persists in
+`localStorage` (`fieldlog-theme`), applied
 before first paint in `src/main.tsx`. Add new colors as custom properties, never hardcoded
 per-theme values in components.
 
@@ -89,12 +105,17 @@ per-theme values in components.
 
 ### Device-local UI preferences (localStorage keys)
 
-| Key                    | Values                | Purpose                       |
-| ---------------------- | --------------------- | ----------------------------- |
-| `fieldlog-theme`       | `dark` \| `red`       | Theme toggle                  |
-| `fieldlog-log-columns` | `highlights` \| `all` | Log table Highlights checkbox |
+| Key                        | Values                     | Purpose                       |
+| -------------------------- | -------------------------- | ----------------------------- |
+| `fieldlog-theme`           | `light` \| `dark` \| `red` | Theme selector                |
+| `fieldlog-log-columns`     | `highlights` \| `all`      | Log table Highlights checkbox |
+| `fieldlog-backup-reminder` | JSON thresholds            | Backup reminder preferences   |
+| `fieldlog-backup-snapshot` | JSON metadata              | Last full-export fingerprint  |
 
 UI preferences go in `localStorage`; QSO/session data stays in IndexedDB.
+
+Backup fingerprints derive from sorted ADIF record serialization, excluding dynamic header and
+internal timestamps. Full-log exports update the snapshot; filtered exports never do.
 
 ## Critical invariants — do not violate
 

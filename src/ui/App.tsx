@@ -2,14 +2,25 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Qso, SessionContext } from '../core/model';
 import { StorageError } from '../storage';
 import * as storage from '../storage';
+import {
+  createBackupSnapshot,
+  getBackupStatus,
+  loadBackupSettings,
+  loadBackupSnapshot,
+  saveBackupSettings,
+  saveBackupSnapshot,
+  type BackupReminderSettings,
+} from './backup';
 import { EMPTY_LOG_FILTER, filterQsos } from './logFilter';
+import { downloadQsosAsAdi } from './exportAdi';
+import { BackupReminder } from './components/BackupReminder';
 import { EditQsoModal } from './components/EditQsoModal';
 import { EntryForm } from './components/EntryForm';
 import { HelpView } from './components/HelpView';
 import { ImportExport } from './components/ImportExport';
 import { LogTable } from './components/LogTable';
 import { SessionPanel } from './components/SessionPanel';
-import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeSelector } from './components/ThemeSelector';
 import { UtcClock } from './components/UtcClock';
 import './styles/app.css';
 
@@ -24,8 +35,16 @@ export function App() {
   const [persistWarning, setPersistWarning] = useState(false);
   const [editing, setEditing] = useState<Qso | null>(null);
   const [logFilter, setLogFilter] = useState(EMPTY_LOG_FILTER);
+  const [backupSettings, setBackupSettings] = useState(loadBackupSettings);
+  const [backupSnapshot, setBackupSnapshot] = useState(loadBackupSnapshot);
+  const [backupNow, setBackupNow] = useState(Date.now);
+  const [dismissedBackupFingerprint, setDismissedBackupFingerprint] = useState<string | null>(null);
 
   const filteredQsos = useMemo(() => filterQsos(qsos, logFilter), [qsos, logFilter]);
+  const backupStatus = useMemo(
+    () => getBackupStatus(qsos, backupSnapshot, backupSettings, backupNow),
+    [qsos, backupSnapshot, backupSettings, backupNow],
+  );
 
   useEffect(() => {
     void (async () => {
@@ -48,6 +67,11 @@ export function App() {
     })();
   }, []);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => setBackupNow(Date.now()), 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const persistSession = useCallback(async (next: SessionContext) => {
     setSession(next);
     try {
@@ -63,6 +87,7 @@ export function App() {
       setQsos((prev) => [qso, ...prev]);
     } catch (e) {
       setError(e instanceof StorageError ? e.message : 'Failed to save QSO');
+      throw e;
     }
   }, []);
 
@@ -72,6 +97,7 @@ export function App() {
       setQsos((prev) => [...added, ...prev].sort((a, b) => b.createdAt - a.createdAt));
     } catch (e) {
       setError(e instanceof StorageError ? e.message : 'Failed to import QSOs');
+      throw e;
     }
   }, []);
 
@@ -91,8 +117,36 @@ export function App() {
       setEditing(null);
     } catch (e) {
       setError(e instanceof StorageError ? e.message : 'Failed to update QSO');
+      throw e;
     }
   }, []);
+
+  const recordFullExport = useCallback(
+    (exportedAt = Date.now()) => {
+      const snapshot = createBackupSnapshot(qsos, exportedAt);
+      saveBackupSnapshot(snapshot);
+      setBackupSnapshot(snapshot);
+      setBackupNow(exportedAt);
+      setDismissedBackupFingerprint(null);
+    },
+    [qsos],
+  );
+
+  const handleBackupSettingsChange = useCallback((next: BackupReminderSettings) => {
+    saveBackupSettings(next);
+    setBackupSettings(next);
+    setBackupNow(Date.now());
+  }, []);
+
+  const exportBackupNow = useCallback(() => {
+    try {
+      const exportedAt = Date.now();
+      downloadQsosAsAdi(qsos, `fieldlog-export-${exportedAt}.adi`);
+      recordFullExport(exportedAt);
+    } catch {
+      setError('Failed to prepare ADIF backup');
+    }
+  }, [qsos, recordFullExport]);
 
   if (loading || !session) {
     return (
@@ -109,7 +163,7 @@ export function App() {
           <span>Field</span>Log
         </h1>
         <UtcClock />
-        <ThemeToggle />
+        <ThemeSelector />
         <nav className="nav-tabs" aria-label="Main navigation">
           {(
             [
@@ -163,6 +217,13 @@ export function App() {
 
       {tab === 'log' && (
         <>
+          {backupStatus.recommended && backupStatus.fingerprint !== dismissedBackupFingerprint && (
+            <BackupReminder
+              status={backupStatus}
+              onExport={exportBackupNow}
+              onDismiss={() => setDismissedBackupFingerprint(backupStatus.fingerprint)}
+            />
+          )}
           <EntryForm
             session={session}
             qsos={qsos}
@@ -188,7 +249,15 @@ export function App() {
         />
       )}
       {tab === 'import' && (
-        <ImportExport qsos={qsos} filteredQsos={filteredQsos} onImport={handleImport} />
+        <ImportExport
+          qsos={qsos}
+          filteredQsos={filteredQsos}
+          backupSettings={backupSettings}
+          backupStatus={backupStatus}
+          onBackupSettingsChange={handleBackupSettingsChange}
+          onFullExport={recordFullExport}
+          onImport={handleImport}
+        />
       )}
       {tab === 'help' && <HelpView />}
 

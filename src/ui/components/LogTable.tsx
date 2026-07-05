@@ -16,7 +16,7 @@ interface Column {
 
 const COLUMNS: Column[] = [
   { key: 'call', label: 'Call', sortKey: 'call', essential: true, render: (q) => q.call },
-  { key: 'date', label: 'Date', sortKey: 'qsoDate', essential: false, render: (q) => q.qsoDate },
+  { key: 'date', label: 'Date', sortKey: 'qsoDate', essential: true, render: (q) => q.qsoDate },
   { key: 'time', label: 'Time', sortKey: 'timeOn', essential: true, render: (q) => q.timeOn },
   { key: 'band', label: 'Band', sortKey: 'band', essential: true, render: (q) => q.band },
   { key: 'freq', label: 'Freq', sortKey: 'freq', essential: false, render: (q) => q.freq },
@@ -59,8 +59,8 @@ export function LogTable({
   });
 
   const columns = highlights ? COLUMNS.filter((c) => c.essential) : COLUMNS;
-  // +1 for the always-visible Actions column
-  const colSpan = columns.length + 1;
+  const showActions = !highlights;
+  const colSpan = columns.length + (showActions ? 1 : 0);
 
   const toggleHighlights = (checked: boolean) => {
     setHighlights(checked);
@@ -194,7 +194,7 @@ export function LogTable({
                   </th>
                 ),
               )}
-              <th scope="col">Actions</th>
+              {showActions && <th scope="col">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -216,49 +216,54 @@ export function LogTable({
                     {columns.map((col) => (
                       <td key={col.key}>{col.render(qso)}</td>
                     ))}
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => onEdit(qso)}
-                      >
-                        Edit
-                      </button>
-                      {confirmDelete === qso.id ? (
-                        <>
-                          <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => {
-                              onDelete(qso.id);
-                              setConfirmDelete(null);
-                            }}
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setConfirmDelete(null)}
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
+                    {showActions && (
+                      <td className="actions">
                         <button
                           type="button"
                           className="btn btn-secondary"
-                          onClick={() => setConfirmDelete(qso.id)}
+                          onClick={() => onEdit(qso)}
                         >
-                          Delete
+                          Edit
                         </button>
-                      )}
-                    </td>
+                        {confirmDelete === qso.id ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              onClick={() => {
+                                onDelete(qso.id);
+                                setConfirmDelete(null);
+                              }}
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() => setConfirmDelete(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setConfirmDelete(qso.id)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {bottomPad > 0 && (
                   <tr aria-hidden="true">
-                    <td colSpan={colSpan} style={{ height: bottomPad, padding: 0, border: 'none' }} />
+                    <td
+                      colSpan={colSpan}
+                      style={{ height: bottomPad, padding: 0, border: 'none' }}
+                    />
                   </tr>
                 )}
               </>

@@ -11,12 +11,15 @@ Offline, browser-based amateur radio field logger for POTA, SOTA, contests, and 
 - **Duplicate detection** (same band+mode or any band)
 - **Filterable log** — search by callsign, filter by band, mode, and date range; export the
   full log or the filtered subset
-- **Highlights view** — the log table defaults to the key columns (Call, Time, Band, Mode)
-  so it fits phone screens without sideways scrolling; one checkbox restores all 8 columns
+- **Highlights view** — the log table defaults to the key columns (Call, Date, Time, Band, Mode)
+  so it fits phone screens without sideways scrolling; one checkbox restores the full table and
+  Edit/Delete actions
 - **Phone-first entry form** — primary fields and the Log button fit on screen without
   scrolling; secondary fields (name, grid, P2P refs, comment) sit in a collapsible
   "More fields" section
-- **Red night mode** — low-intensity red-on-black theme for night operation
+- **Field themes** — Light for daylight, Dark for low light, and Red Night to preserve night vision
+- **Backup freshness reminders** — configurable QSO-count or elapsed-time prompts with one-click
+  full ADIF export
 - **IndexedDB** persistence across reloads, with persistent-storage request and quota warnings
 - **PWA** — installable, works offline via service worker
 - **Strict CSP** — no external network requests at runtime
@@ -64,14 +67,18 @@ npm run format        # Prettier
    counter tracks the current activation; press **New session** to reset it (the log is kept).
 2. **Log** — enter callsign, RST, optional name/grid/comment; band & mode persist. On
    phones the optional fields start collapsed under **More fields** so the Log button
-   stays reachable without scrolling. The log table filters by callsign, band, mode, and
-   date range; the **Highlights** checkbox (on by default, remembered per device) limits
-   columns to Call/Time/Band/Mode so the table fits phone screens — uncheck it for the
-   full 8-column view.
-3. **Import/Export** — merge `.adi` files with deduplication; export the full log or the
-   currently filtered subset as ADIF for LoTW/Club Log/POTA upload later.
+   stays reachable without scrolling. Invalid required values are blocked; unusual but
+   potentially valid values can be reviewed and logged explicitly. The log table filters by
+   callsign, band, mode, and date range; the **Highlights** checkbox (on by default, remembered
+   per device) limits columns to Call/Date/Time/Band/Mode so the table fits phone screens —
+   uncheck it for the full table and Edit/Delete actions. The grouped editor covers all known
+   ADIF fields while preserving unknown imported fields.
+3. **Import/Export** — preview `.adi` files before writing; invalid records are excluded and
+   duplicates skipped. Confirmed valid records merge atomically. Export the full log or the
+   currently filtered subset as ADIF for LoTW/Club Log/POTA upload later. Full exports update the
+   persisted backup-freshness status; filtered exports do not.
 4. **Help** — in-app documentation and keyboard shortcuts.
-5. **Red night mode** — toggle in the header; preserves night vision during after-dark operation.
+5. **Themes** — choose Light, Dark, or Red Night in the header; the choice persists on this device.
 
 If the browser denies persistent storage, FieldLog shows a warning — your log then lives in
 best-effort storage that the browser could evict under pressure, so export regularly.
