@@ -10,6 +10,29 @@ test('Help identifies the running application version', async ({ page }) => {
   await expect(page.getByText(`FieldLog v${packageJson.version}`)).toBeVisible();
 });
 
+test('offers an in-app install action when the browser reports availability', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: /FieldLog/i })).toBeVisible();
+
+  await page.evaluate(() => {
+    const event = Object.assign(new Event('beforeinstallprompt'), {
+      prompt: () => Promise.resolve(),
+      userChoice: Promise.resolve({ outcome: 'accepted', platform: 'web' }),
+    });
+    window.dispatchEvent(event);
+  });
+
+  const install = page.getByRole('button', { name: 'Install app' });
+  await expect(install).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await install.click();
+  await expect(install).toHaveCount(0);
+});
+
 test('core flow: log QSO, export, re-import round-trips faithfully', async ({ page }) => {
   await page.goto('./');
 

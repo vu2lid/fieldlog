@@ -49,6 +49,16 @@ afterEach(() => {
 });
 
 describe('persistence failures', () => {
+  it('explains denied persistence without claiming installation guarantees it', async () => {
+    vi.mocked(storage.requestPersistence).mockResolvedValue('denied');
+    render(<App />);
+
+    const warning = await screen.findByRole('status');
+    expect(warning).toHaveTextContent('Your log is stored locally');
+    expect(warning).toHaveTextContent('Export your log regularly');
+    expect(warning).not.toHaveTextContent('install the app');
+  });
+
   it('retains the QSO draft and does not report success when saving fails', async () => {
     vi.mocked(storage.putQso).mockRejectedValue(new storage.StorageError('Database unavailable'));
     const user = userEvent.setup();

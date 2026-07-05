@@ -18,6 +18,7 @@ import { EditQsoModal } from './components/EditQsoModal';
 import { EntryForm } from './components/EntryForm';
 import { HelpView } from './components/HelpView';
 import { ImportExport } from './components/ImportExport';
+import { InstallButton } from './components/InstallButton';
 import { LogTable } from './components/LogTable';
 import { SessionPanel } from './components/SessionPanel';
 import { ThemeSelector } from './components/ThemeSelector';
@@ -164,6 +165,7 @@ export function App() {
         </h1>
         <UtcClock />
         <ThemeSelector />
+        <InstallButton />
         <nav className="nav-tabs" aria-label="Main navigation">
           {(
             [
@@ -202,8 +204,8 @@ export function App() {
 
       {persistWarning && (
         <div className="error-banner" role="status">
-          Persistent storage was not granted — the browser may evict log data under storage
-          pressure. Export your log regularly, or install the app to improve persistence.
+          Persistent storage was not granted. Your log is stored locally, but the browser may evict
+          it under storage pressure. Export your log regularly.
           <button
             type="button"
             className="btn btn-secondary"

@@ -98,6 +98,14 @@ export function HelpView() {
         </li>
       </ul>
 
+      <h3>Install FieldLog</h3>
+      <p>
+        When <strong>Install app</strong> appears in the FieldLog header, select it and confirm the
+        browser prompt. Chromium browsers also show an install icon in the address bar. On Safari,
+        use Share and then Add to Home Screen. The install control is hidden when FieldLog is
+        already running as an installed app.
+      </p>
+
       <h3>Duplicate detection</h3>
       <p>
         When entering a callsign, FieldLog shows a DUPE badge if that station was worked before.

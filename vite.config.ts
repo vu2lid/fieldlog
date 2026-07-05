@@ -60,6 +60,7 @@ export default defineConfig({
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',
         display: 'standalone',
+        id: basePath,
         start_url: basePath,
         scope: basePath,
         icons: [
@@ -72,6 +73,12 @@ export default defineConfig({
             src: 'pwa-512.png',
             sizes: '512x512',
             type: 'image/png',
+          },
+          {
+            src: 'pwa-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ],
       },

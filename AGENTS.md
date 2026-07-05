@@ -86,6 +86,13 @@ Themes are CSS custom-property swaps on `:root[data-theme='…']` in `src/ui/sty
 before first paint in `src/main.tsx`. Add new colors as custom properties, never hardcoded
 per-theme values in components.
 
+### Application icons
+
+`public/favicon.svg` is the original regular icon source; `public/pwa-maskable.svg` is its
+safe-zone variant for adaptive launchers. The committed PNGs are rendered from those SVGs.
+Keep the favicon, regular 192/512 icons, and maskable 512 icon visually consistent. Important
+maskable artwork must remain inside the centered 40%-radius safe zone.
+
 ### Mobile layout invariants
 
 - **No horizontal overflow at phone widths.** Inputs inside grid tracks need

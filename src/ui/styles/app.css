@@ -145,6 +145,10 @@ body {
   outline-offset: 1px;
 }
 
+.install-button {
+  white-space: nowrap;
+}
+
 .nav-tabs {
   display: flex;
   gap: 0.5rem;

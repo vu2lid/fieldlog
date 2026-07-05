@@ -24,7 +24,7 @@ Help when reporting a problem.
 - **Backup freshness reminders** — configurable QSO-count or elapsed-time prompts with one-click
   full ADIF export
 - **IndexedDB** persistence across reloads, with persistent-storage request and quota warnings
-- **PWA** — installable, works offline via service worker
+- **PWA** — installable from an in-app button or browser controls; works offline via service worker
 - **Strict CSP** — no external network requests at runtime
 - Works over plain HTTP on a LAN (e.g. serving `dist/` from a laptop to a phone in the field)
 

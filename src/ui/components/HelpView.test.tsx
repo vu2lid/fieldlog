@@ -15,5 +15,7 @@ describe('HelpView', () => {
     render(<HelpView />);
 
     expect(screen.getByText(`FieldLog v${APP_VERSION}`)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Install FieldLog' })).toBeInTheDocument();
+    expect(screen.getByText(/install icon in the address bar/i)).toBeInTheDocument();
   });
 });
