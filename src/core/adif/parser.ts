@@ -1,7 +1,8 @@
-import { byteIndexToCharIndex, lineAtOffset, sliceByBytes, toBytes } from './bytes';
+import { byteIndexToCharIndex, lineAtOffset, toBytes } from './bytes';
 import type { AdifField, AdifHeader, AdifRecord, ParseError, ParseResult } from './types';
 
 const WHITESPACE = new Set([0x20, 0x09, 0x0a, 0x0d]);
+const decoder = new TextDecoder();
 
 function skipWhitespaceBytes(bytes: Uint8Array, start: number): number {
   let pos = start;
@@ -38,7 +39,7 @@ function readFieldName(bytes: Uint8Array, start: number): { name: string; end: n
   if (pos === nameStart || bytes[pos] !== 0x3a) {
     return null;
   }
-  const name = new TextDecoder().decode(bytes.subarray(nameStart, pos)).toUpperCase();
+  const name = decoder.decode(bytes.subarray(nameStart, pos)).toUpperCase();
   return { name, end: pos + 1 };
 }
 
@@ -64,9 +65,7 @@ function parseField(
   }
   pos++;
 
-  const marker = new TextDecoder()
-    .decode(bytes.subarray(pos, Math.min(pos + 4, bytes.length)))
-    .toUpperCase();
+  const marker = decoder.decode(bytes.subarray(pos, Math.min(pos + 4, bytes.length))).toUpperCase();
   if (marker.startsWith('EOR>')) {
     return { field: null, end: pos + 4, terminal: 'eor' };
   }
@@ -125,7 +124,7 @@ function parseField(
     return { field: null, end: bytes.length, terminal: null };
   }
 
-  const value = sliceByBytes(text, pos, lengthResult.value);
+  const value = decoder.decode(bytes.subarray(pos, dataEnd));
   pos = dataEnd;
 
   return { field: { name: nameResult.name, value }, end: pos, terminal: null };
@@ -144,7 +143,7 @@ export function parseAdi(content: string): ParseResult {
   while (firstTag < bytes.length && bytes[firstTag] !== 0x3c) {
     firstTag++;
   }
-  const preamble = sliceByBytes(content, 0, firstTag).trim() || undefined;
+  const preamble = decoder.decode(bytes.subarray(0, firstTag)).trim() || undefined;
 
   const header: AdifHeader = preamble ? { fields: new Map(), preamble } : { fields: new Map() };
   const records: AdifRecord[] = [];

@@ -8,7 +8,8 @@ FieldLog is an offline-first amateur radio logging PWA. It runs entirely in the 
 
 ## Setup commands
 
-Requires **Node 22** (see `.nvmrc`; `nvm use` picks it up). Older Node versions fail.
+Requires **Node 24 LTS** (see `.nvmrc`; `nvm use` picks it up). Other major versions are
+not supported.
 
 ```bash
 npm install

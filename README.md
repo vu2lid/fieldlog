@@ -34,7 +34,7 @@ npm run dev
 
 Open <http://localhost:5173>
 
-Requires Node 22 (see `.nvmrc`).
+Requires Node 24 LTS (see `.nvmrc`).
 
 ## Build & serve offline
 
