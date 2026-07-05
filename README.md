@@ -54,6 +54,16 @@ phone). QSO ID generation falls back to a `crypto.getRandomValues`-based UUID wh
 Note that service-worker installation (offline caching) still requires HTTPS or
 localhost — on plain HTTP the app works while the page is open but is not installable.
 
+### Install and remove
+
+Use FieldLog's **Install app** button or the browser's install control to add it to the
+device. To remove it, choose **Uninstall FieldLog** from the installed app's menu or use
+the browser or operating-system app settings. Export the log before uninstalling.
+
+Uninstalling may leave the locally stored log in browser storage. Permanently deleting
+the log is a separate action: clear FieldLog's site data in browser settings. This cannot
+be undone.
+
 ## GitHub Pages deployment
 
 The Pages workflow verifies and deploys every push to `main`. In the repository settings,

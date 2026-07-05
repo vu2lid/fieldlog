@@ -105,6 +105,16 @@ export function HelpView() {
         use Share and then Add to Home Screen. The install control is hidden when FieldLog is
         already running as an installed app.
       </p>
+      <p>
+        To remove FieldLog, open the installed app&apos;s menu and choose{' '}
+        <strong>Uninstall FieldLog</strong>, or remove it through your browser or operating-system
+        app settings. Export your log before uninstalling.
+      </p>
+      <p>
+        Uninstalling the app and deleting its local log are separate actions. Uninstalling may leave
+        the log in browser storage. To erase it permanently, clear FieldLog&apos;s site data in
+        browser settings. This cannot be undone.
+      </p>
 
       <h3>Duplicate detection</h3>
       <p>
