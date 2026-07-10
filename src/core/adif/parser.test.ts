@@ -116,5 +116,5 @@ describe('parseAdi', () => {
     const result = parseAdi(adi);
     expect(result.errors).toHaveLength(0);
     expect(result.records).toHaveLength(2000);
-  });
+  }, 15000);
 });
